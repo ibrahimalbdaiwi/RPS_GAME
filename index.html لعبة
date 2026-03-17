@@ -1,0 +1,118 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحدي النجوم والمراسلة</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; text-align: center; background: #0e1621; color: white; padding: 20px; margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+        .star-balance { background: rgba(255, 191, 0, 0.1); border: 2px solid #ffbf00; padding: 10px 25px; border-radius: 50px; display: inline-flex; align-items: center; gap: 10px; margin-bottom: 25px; box-shadow: 0 0 15px rgba(255, 191, 0, 0.2); }
+        .choices { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .choice-btn { background: #17212b; border: 2px solid #2b5278; border-radius: 20px; width: 85px; height: 85px; font-size: 2.8rem; cursor: pointer; transition: 0.2s; }
+        .choice-btn:active { transform: scale(0.9); }
+        
+        #status { font-size: 1.3rem; margin-top: 15px; min-height: 30px; transition: 0.3s; }
+        #motivation { font-size: 1rem; color: #ffbf00; font-style: italic; margin-top: 5px; height: 25px; }
+
+        /* واجهة المراسلة */
+        #contact-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); flex-direction: column; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .contact-card { background: #1c2733; padding: 25px; border-radius: 20px; border: 2px solid #ffbf00; width: 85%; max-width: 350px; }
+        textarea { width: 100%; height: 100px; border-radius: 10px; padding: 10px; border: 1px solid #2b5278; background: #0e1621; color: white; font-family: 'Cairo'; resize: none; margin: 15px 0; box-sizing: border-box; }
+        .send-btn { background: #2481cc; color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; width: 100%; font-size: 1.1rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h2 style="margin-bottom: 15px;">🚀 تحدي "طالب اقتصاد"</h2>
+
+    <div class="star-balance">
+        <span style="font-size: 1.5rem;">⭐️</span>
+        <span style="font-size: 1.3rem; font-weight: bold;">الرصيد: <span id="user-stars" style="color:#ffbf00">0</span> / 3</span>
+    </div>
+
+    <div id="game-zone">
+        <div class="choices">
+            <button class="choice-btn" onclick="play('✊')">✊</button>
+            <button class="choice-btn" onclick="play('✋')">✋</button>
+            <button class="choice-btn" onclick="play('✌️')">✌️</button>
+        </div>
+        <div id="status">أثبت جدارتك لتفتح صندوق الأسئلة!</div>
+        <div id="motivation">ابدأ اللعب الآن.. النجوم بانتظارك! ✨</div>
+    </div>
+
+    <div id="contact-overlay">
+        <div class="contact-card">
+            <h3 style="color: #ffbf00; margin-top: 0;">أداء أسطوري! 🎉</h3>
+            <p>لقد أثبتّ أنك "طالب اقتصاد" حقيقي. تفضل بسؤالك وسأرد عليك شخصياً:</p>
+            <textarea id="user-message" placeholder="اكتب سؤالك التعليمي أو استفسارك هنا..."></textarea>
+            <button class="send-btn" onclick="sendMessage()">إرسال السؤال للبوت</button>
+            <button onclick="closeContact()" style="background:none; border:none; color:#6c7883; margin-top:10px; cursor:pointer;">رجوع للعب</button>
+        </div>
+    </div>
+
+    <script>
+        let stars = 0;
+        const botToken = "8096537189:AAGYG7JuI7_yE7NCfr--bWtnd8gFJFbVoNc";
+        const chatId = "7561715708";
+
+        const winMsgs = ["فوز ساحق! استمر 🔥", "أنت ملك اللعبة اليوم! 👑", "رائع! النجوم تليق بك ✨"];
+        const loseMsgs = ["لا بأس، المحارب لا يستسلم! 💪", "جولة أخرى وستنتصر بالتأكيد 🔄", "البوت محظوظ اليوم، حاول مجدداً!"];
+        const drawMsgs = ["تفكير متطابق! جولة حاسمة؟ 🤝", "تعادل عادل، من سيكسر الرقم؟", "تفكيرك ذكي مثل البوت!"];
+
+        function play(userChoice) {
+            const options = ['✊', '✋', '✌️'];
+            const botChoice = options[Math.floor(Math.random() * 3)];
+            const status = document.getElementById('status');
+            const motiv = document.getElementById('motivation');
+
+            if (userChoice === botChoice) {
+                status.innerText = `تعادل! ${userChoice} 🤝 ${botChoice}`;
+                status.style.color = "white";
+                motiv.innerText = drawMsgs[Math.floor(Math.random()*drawMsgs.length)];
+            } else if (
+                (userChoice === '✊' && botChoice === '✌️') ||
+                (userChoice === '✋' && botChoice === '✊') ||
+                (userChoice === '✌️' && botChoice === '✋')
+            ) {
+                stars++;
+                document.getElementById('user-stars').innerText = stars;
+                confetti({ shapes: ['star'], particleCount: 50, colors: ['#ffbf00', '#ffffff'] });
+                status.innerText = `فوز! 🎉 كسبت نجمة جديدة`;
+                status.style.color = "#4ecca3";
+                motiv.innerText = winMsgs[Math.floor(Math.random()*winMsgs.length)];
+                
+                if (stars >= 3) { setTimeout(showContact, 800); }
+            } else {
+                status.innerText = `خسرت الجولة! ${botChoice} هزمتك`;
+                status.style.color = "#ff5252";
+                motiv.innerText = loseMsgs[Math.floor(Math.random()*loseMsgs.length)];
+            }
+        }
+
+        function showContact() { document.getElementById('contact-overlay').style.display = 'flex'; }
+        function closeContact() { document.getElementById('contact-overlay').style.display = 'none'; }
+
+        async function sendMessage() {
+            const message = document.getElementById('user-message').value;
+            if (!message) return alert("من فضلك اكتب سؤالك أولاً!");
+
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent("سؤال جديد من اللعبة:\n" + message)}`;
+
+            try {
+                const response = await fetch(url);
+                if (response.ok) {
+                    alert("تم إرسال سؤالك بنجاح! سأرد عليك قريباً.");
+                    stars = 0; 
+                    document.getElementById('user-stars').innerText = stars;
+                    document.getElementById('user-message').value = "";
+                    closeContact();
+                } else { alert("حدث خطأ أثناء الإرسال."); }
+            } catch (error) { alert("تعذر الاتصال بالخادم."); }
+        }
+    </script>
+</body>
+</html>
